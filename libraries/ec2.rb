@@ -52,19 +52,21 @@ module Opscode
       end
 
       def instance_region
-          @@instance_region ||= instance_availability_zone[0..-2]
+        @@instance_region ||= instance_availability_zone[0..-2]
       end
 
       private
 
-      def create_aws_interface(aws_interface)
+      def create_aws_interface(aws_interface, region=nil)
         begin
           require 'aws-sdk'
         rescue LoadError
           Chef::Log.error("Missing gem 'aws-sdk'. Use the default aws recipe to install it first.")
         end
 
-        region = instance_region
+        unless region
+          region = instance_region
+        end
 
         if !new_resource.aws_access_key.to_s.empty? && !new_resource.aws_secret_access_key.to_s.empty?
           creds = ::Aws::Credentials.new(new_resource.aws_access_key, new_resource.aws_secret_access_key)
